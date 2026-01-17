@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/navbar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ import Link from "next/link";
 interface NavbarLink {
   text: string;
   href: string;
+  badge?: string;
 }
 
 interface NavbarActionProps {
@@ -47,17 +49,9 @@ export default function Navbar({
   homeUrl = "/",
   mobileLinks = [
     { text: "Inicio", href: "/" },
-    { text: "Calculadora CDT", href: "/cdt" },
+    { text: "Calculadora CDT", href: "/cdt", badge: "Nuevo" },
     { text: "Bancos", href: "/" },
     { text: "Terminos y condiciones", href: "/terminos-y-condiciones" },
-  ],
-  actions = [
-    {
-      text: "Get Started",
-      href: "/",
-      isButton: true,
-      variant: "default",
-    },
   ],
   showNavigation = true,
   customNavigation,
@@ -79,35 +73,13 @@ export default function Navbar({
             {showNavigation && (customNavigation || <Navigation />)}
           </NavbarLeft>
           <NavbarRight>
-            {actions.map((action, index) =>
-              action.isButton ? (
-                <Button
-                  key={index}
-                  variant={action.variant || "default"}
-                  asChild
-                >
-                  <Link href={action.href}>
-                    {action.icon}
-                    {action.text}
-                    {action.iconRight}
-                  </Link>
-                </Button>
-              ) : (
-                <Link
-                  key={index}
-                  href={action.href}
-                  className="hidden text-sm md:block"
-                >
-                  {action.text}
-                </Link>
-              )
-            )}
+
             <Sheet>
               <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="shrink-0 md:hidden"
+                  className="shrink-0 md:hidden ml-12"
                 >
                   <Menu className="size-5" />
                   <span className="sr-only">Toggle navigation menu</span>
@@ -125,9 +97,14 @@ export default function Navbar({
                     <Link
                       key={index}
                       href={link.href}
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground hover:text-foreground flex items-center gap-2"
                     >
                       {link.text}
+                      {link.badge && (
+                        <Badge variant="secondary" className="bg-[#00d992]/10 text-[#00d992] border-none text-[10px] px-1.5 py-0 h-4 uppercase font-bold">
+                          {link.badge}
+                        </Badge>
+                      )}
                     </Link>
                   ))}
                 </nav>

@@ -13,6 +13,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "./navigation-menu";
+import { Badge } from "./badge";
 import LaunchUI from "../logos/launch-ui";
 import { ReactNode } from "react";
 
@@ -27,6 +28,7 @@ interface MenuItem {
   href?: string;
   isLink?: boolean;
   content?: ReactNode;
+  badge?: string;
 }
 
 interface NavigationProps {
@@ -40,6 +42,7 @@ interface NavigationProps {
     title: string;
     href: string;
     description: string;
+    badge?: string;
   }[];
 }
 
@@ -53,6 +56,7 @@ export default function Navigation({
       title: "Calculadora CDT",
       href: "/cdt",
       isLink: true,
+      badge: "Nuevo",
     },
     {
       title: "Bancos",
@@ -99,6 +103,7 @@ export default function Navigation({
       title: "Calculadora CDT",
       href: "/cdt",
       description: "Calcula el rendimiento de tu CDT en segundos.",
+      badge: "Nuevo",
     },
   ],
 }: NavigationProps) {
@@ -110,7 +115,14 @@ export default function Navigation({
             {item.isLink ? (
               <Link href={item.href || ""} legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  {item.title}
+                  <div className="flex items-center gap-2">
+                    {item.title}
+                    {item.badge && (
+                      <Badge variant="secondary" className="bg-[#00d992]/10 text-[#00d992] border-none text-[10px] px-1.5 py-0 h-4 uppercase font-bold">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </div>
                 </NavigationMenuLink>
               </Link>
             ) : (
@@ -136,7 +148,7 @@ export default function Navigation({
                         </NavigationMenuLink>
                       </li>
                       {introItems.map((intro, i) => (
-                        <ListItem key={i} href={intro.href} title={intro.title}>
+                        <ListItem key={i} href={intro.href} title={intro.title} badge={intro.badge}>
                           {intro.description}
                         </ListItem>
                       ))}
@@ -170,8 +182,9 @@ function ListItem({
   className,
   title,
   children,
+  badge,
   ...props
-}: React.ComponentProps<"a"> & { title: string }) {
+}: React.ComponentProps<"a"> & { title: string; badge?: string }) {
   return (
     <li>
       <NavigationMenuLink asChild>
@@ -184,7 +197,14 @@ function ListItem({
           )}
           {...props}
         >
-          <div className="text-sm leading-none font-medium">{title}</div>
+          <div className="text-sm leading-none font-medium flex items-center gap-2">
+            {title}
+            {badge && (
+              <Badge variant="secondary" className="bg-[#00d992]/10 text-[#00d992] border-none text-[10px] px-1.5 py-0 h-4 uppercase font-bold">
+                {badge}
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
             {children}
           </p>
