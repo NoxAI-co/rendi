@@ -32,8 +32,8 @@ export const Banks: Bank[] = [
   },
   {
     name: "Lulo Bank",
-    tasaEA: 9.5,
-    type: "Cuenta Lulo Pro",
+    tasaEA: 9.25,
+    type: "Bolsillos Flex Lulo Pro",
     image: "/lulo.webp",
     id: 3,
     act: true,
@@ -44,7 +44,6 @@ export const Banks: Bank[] = [
     image: "/finandina.webp",
     id: 9,
     type: "Cuenta Flexidigital+",
-    act: true,
   },
   {
     name: "RappiPay",
@@ -84,7 +83,6 @@ export const DepositosBajoMonto: Bank[] = [
     image: "/uala.webp",
     type: "Deposito bajo monto",
     id: 6,
-    act: true,
   },
   {
     name: "Nequi",

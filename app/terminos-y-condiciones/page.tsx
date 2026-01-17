@@ -8,7 +8,7 @@ export default function TermsPage() {
 
       <header className="w-full max-w-4xl text-center py-6 border-b border-gray-700">
         <h1 className="text-lg md:text-4xl font-bold">Términos y Condiciones</h1>
-        <p className="text-gray-400 mt-2">Última actualización: 01/02/2025</p>
+        <p className="text-gray-400 mt-2">Última actualización: 17/01/2026</p>
       </header>
 
       <main className="w-full max-w-4xl mt-6 space-y-6 text-gray-300 px-6">
