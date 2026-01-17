@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { motion } from "framer-motion";
 import { Banks } from "../_DATA/Banks";
 import Image from "next/image";
+import Link from "next/link";
 import { CarouselCDTs } from "../_components/core/CarouselCDTs";
 import {
     Area,
@@ -125,6 +126,16 @@ export default function CDTCalculator() {
             <section className="w-full px-4 xl:px-28 space-y-4">
 
                 <CarouselCDTs onSelectCDT={handlePresetSelect} />
+
+                <div className="flex justify-center mt-4">
+                    <Link
+                        href="/cdt/list"
+                        className="text-neutral-400 hover:text-[#00d992] text-sm font-medium transition-colors flex items-center gap-1 group"
+                    >
+                        Ver todos los cdts registrados
+                        <span className="group-hover:translate-x-1 transition-transform">→</span>
+                    </Link>
+                </div>
             </section>
 
             <section className="grid gap-6 md:grid-cols-2 w-full px-4 xl:px-28">

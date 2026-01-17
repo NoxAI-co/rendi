@@ -46,9 +46,16 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { TrendingUp, BarChart3 } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Home() {
   const id = useId();
@@ -80,7 +87,7 @@ export default function Home() {
       setDisplayedBanks(
         isChecked
           ? [...Banks, ...DepositosBajoMonto.map(({ act, ...rest }) => rest)]
-          : Banks
+          : Banks,
       );
     }
   }, [amount, isChecked]);
@@ -90,8 +97,7 @@ export default function Home() {
     const P = parseFloat(amount);
     const t = parseInt(months);
 
-    if (isNaN(P) || isNaN(t) || P <= 0 || t <= 0)
-      return [];
+    if (isNaN(P) || isNaN(t) || P <= 0 || t <= 0) return [];
 
     return displayedBanks.map((bank) => {
       const results = calculateSavingsReturns(P, t, bank.tasaEA);
@@ -169,6 +175,18 @@ export default function Home() {
 
       <div className="place-content-center place-items-center w-full overflow-hidden">
         <CarouselBanks />
+
+        <div className="flex justify-center mt-4">
+          <Link
+            href="/banks"
+            className="text-neutral-400 hover:text-[#00d992] text-sm font-medium transition-colors flex items-center gap-1 group"
+          >
+            Ver todos los bancos disponibles 
+            <span className="group-hover:translate-x-1 transition-transform">
+              →
+            </span>
+          </Link>
+        </div>
       </div>
 
       <section className="flex flex-col md:flex-row items-center  gap-4 text-center text-neutral-400">
@@ -375,12 +393,12 @@ export default function Home() {
                             {bank.finalAmount}
                           </span>
                           {parseFloat(
-                            bank.retention.replace(/[^0-9.-]+/g, "")
+                            bank.retention.replace(/[^0-9.-]+/g, ""),
                           ) > 1 && (
-                              <span className="text-red-400 text-sm">
-                                (RTE FTE: -{bank.retention})
-                              </span>
-                            )}
+                            <span className="text-red-400 text-sm">
+                              (RTE FTE: -{bank.retention})
+                            </span>
+                          )}
                         </div>
                         <p className="text-yellow-400 text-sm">
                           Tu dinero habrá crecido: {bank.interests}
@@ -436,22 +454,29 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-2">
-                <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                <ChartContainer
+                  config={chartConfig}
+                  className="h-[250px] w-full"
+                >
                   <BarChart
                     data={comparisonData}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#333"
+                    />
                     <XAxis
                       dataKey="name"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#888' }}
+                      tick={{ fill: "#888" }}
                       angle={-15}
                       textAnchor="end"
                       height={60}
                     />
-                    <YAxis hide domain={['auto', 'auto']} />
+                    <YAxis hide domain={["auto", "auto"]} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Bar
                       dataKey="returns"
@@ -481,20 +506,27 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="px-2">
-                <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                <ChartContainer
+                  config={chartConfig}
+                  className="h-[250px] w-full"
+                >
                   <AreaChart
                     data={chartData}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#333"
+                    />
                     <XAxis
                       dataKey="month"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#888' }}
+                      tick={{ fill: "#888" }}
                       interval={Math.floor(chartData.length / 5)}
                     />
-                    <YAxis hide domain={['dataMin - 10000', 'auto']} />
+                    <YAxis hide domain={["dataMin - 10000", "auto"]} />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     <Area
                       type="monotone"
@@ -505,9 +537,23 @@ export default function Home() {
                       fill="url(#colorBalanceSavings)"
                     />
                     <defs>
-                      <linearGradient id="colorBalanceSavings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#00d992" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#00d992" stopOpacity={0} />
+                      <linearGradient
+                        id="colorBalanceSavings"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#00d992"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#00d992"
+                          stopOpacity={0}
+                        />
                       </linearGradient>
                     </defs>
                   </AreaChart>

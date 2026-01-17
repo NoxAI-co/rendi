@@ -50,6 +50,11 @@ export default function Navigation({
       content: "default",
     },
     {
+      title: "Calculadora CDT",
+      href: "/cdt",
+      isLink: true,
+    },
+    {
       title: "Bancos",
       content: "components",
     },
