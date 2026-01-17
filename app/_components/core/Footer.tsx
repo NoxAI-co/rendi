@@ -27,9 +27,7 @@ export const Footer = () => {
           <div className="h-20 bg-neutral-600"></div>
 
           <div className="px-6 py-4 relative flex items-center">
-            <div className="absolute -top-10 left-4 w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-900 flex items-center justify-center bg-[#ffba34]">
-              <Image src="/eddy.png" alt="Your Name" width={60} height={60} />
-            </div>
+            <div className="absolute -top-10 left-4 w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-900 flex items-center justify-center bg-black"></div>
 
             <div className="absolute right-0 w-24 h-24 rounded-full">
               <Link
@@ -47,10 +45,6 @@ export const Footer = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="mt-8 border-t border-neutral-700 pt-6 text-sm text-center text-neutral-500 flex justify-center">
-        <Image src="/hends.png" alt="Hands" width={50} height={30} />
       </div>
     </footer>
   );

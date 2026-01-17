@@ -47,6 +47,7 @@ export default function Navbar({
   homeUrl = "/",
   mobileLinks = [
     { text: "Inicio", href: "/" },
+    { text: "Calculadora CDT", href: "/cdt" },
     { text: "Bancos", href: "/" },
     { text: "Terminos y condiciones", href: "/terminos-y-condiciones" },
   ],

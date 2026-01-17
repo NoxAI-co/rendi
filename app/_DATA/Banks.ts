@@ -1,3 +1,8 @@
+interface CDTOption {
+  rate: number;
+  months: number;
+}
+
 interface Bank {
   name: string;
   tasaEA: number;
@@ -5,6 +10,7 @@ interface Bank {
   id: number;
   type?: string;
   act?: boolean;
+  cdtOptions?: CDTOption[];
 }
 
 export const Banks: Bank[] = [
@@ -14,6 +20,10 @@ export const Banks: Bank[] = [
     image: "/nubank.webp",
     id: 1,
     type: "Cajita de ahorros",
+    cdtOptions: [
+      { rate: 9.00, months: 2 },
+      { rate: 9.20, months: 3 },
+    ],
   },
   {
     name: "Bold",
@@ -22,6 +32,11 @@ export const Banks: Bank[] = [
     image: "/bold.webp",
     id: 10,
     act: true,
+    cdtOptions: [
+      { rate: 11, months: 3 },
+      { rate: 11.20, months: 6 },
+      { rate: 12.00, months: 12 },
+    ],
   },
   {
     name: "Bancolombia",

@@ -27,6 +27,29 @@ import { Badge } from "@/components/ui/badge";
 import { DialogDetails } from "./_components/core/DialogDetails";
 import DialogFormula from "./_components/core/DialogFormula";
 
+import { calculateSavingsReturns, formatCurrency } from "@/lib/finance-utils";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { TrendingUp, BarChart3 } from "lucide-react";
+import { motion } from "framer-motion";
+
 export default function Home() {
   const id = useId();
   const [amount, setAmount] = useState("1000000");
@@ -34,6 +57,19 @@ export default function Home() {
   const [isChecked, setChecked] = useState(false);
   const [displayedBanks, setDisplayedBanks] = useState(Banks);
   const [limit, setLimit] = useState(false);
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [comparisonData, setComparisonData] = useState<any[]>([]);
+
+  const chartConfig = {
+    balance: {
+      label: "Saldo Total",
+      color: "#00d992",
+    },
+    returns: {
+      label: "Rendimiento",
+      color: "#00d992",
+    },
+  } satisfies ChartConfig;
 
   useEffect(() => {
     if (parseFloat(amount) >= 10482689) {
@@ -49,66 +85,69 @@ export default function Home() {
     }
   }, [amount, isChecked]);
 
-  // Formatear valores en COP
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 1,
-    }).format(value);
-  };
-
-  const calculateRetention = (interests: number) => {
-    const dailyThreshold = 2588.58; //Limite diario para retención
-    const monthlyThreshold = dailyThreshold * 30;
-
-    if (interests > monthlyThreshold) {
-      return interests * 0.07; // 7% de retención
-    }
-
-    return 0; // Si no supera el umbral, no hay retención
-  };
-
   // Calcular rendimientos
   const calculateReturns = () => {
-    if (!amount || !months || parseFloat(amount) <= 0 || parseInt(months) <= 0)
+    const P = parseFloat(amount);
+    const t = parseInt(months);
+
+    if (isNaN(P) || isNaN(t) || P <= 0 || t <= 0)
       return [];
 
     return displayedBanks.map((bank) => {
-      const P = parseFloat(amount);
-      const EA = bank.tasaEA / 100; // Convertimos EA a decimal
-      const r = Math.pow(1 + EA, 1 / 12) - 1; // Cálculo correcto de tasa efectiva mensual
-      const t = parseInt(months);
-
-      const A = P * Math.pow(1 + r, t); // Monto final con interés compuesto
-      const interests = A - P; // Rendimiento generado
-      const retention = calculateRetention(interests); // Retención ajustada
-      const finalAmount = A - retention; // Monto final después de retención
-
-      // Calcular valores mensuales
-      const monthlyA = P * Math.pow(1 + r, 1); // Monto final después de 1 mes
-      const monthlyInterests = monthlyA - P; // Rendimiento generado en 1 mes
-      const monthlyRetention = calculateRetention(monthlyInterests); // Retención ajustada en 1 mes
-      const finalAmountMonthly = monthlyA - monthlyRetention; // Monto final después de retención en 1 mes
+      const results = calculateSavingsReturns(P, t, bank.tasaEA);
 
       return {
         ...bank,
         deposit: formatCurrency(P),
         depositRaw: P,
-        finalAmount: formatCurrency(finalAmount),
-        finalAmountRaw: finalAmount,
-        interests: formatCurrency(interests),
-        interestsRaw: interests,
-        retention: formatCurrency(retention),
-        retentionRaw: retention,
+        finalAmount: formatCurrency(results.finalAmount),
+        finalAmountRaw: results.finalAmount,
+        interests: formatCurrency(results.interests),
+        interestsRaw: results.interests,
+        retention: formatCurrency(results.retention),
+        retentionRaw: results.retention,
         monthsRaw: t,
 
-        finalAmountMonthlyRaw: finalAmountMonthly,
-        interestsMonthlyRaw: monthlyInterests,
-        monthlyRetention: monthlyRetention,
+        finalAmountMonthlyRaw: results.finalAmountMonthly,
+        interestsMonthlyRaw: results.interestsMonthly,
+        monthlyRetention: results.retentionMonthly,
       };
     });
   };
+
+  // Generar datos para gráficos
+  useEffect(() => {
+    if (!isFormFilled) {
+      setChartData([]);
+      setComparisonData([]);
+      return;
+    }
+
+    const P = parseFloat(amount);
+    const t = parseInt(months);
+    const results = calculateReturns();
+
+    // Gráfico de crecimiento (AreaChart)
+    const growthData = [];
+    const topBank = results[0]; // El mejor banco
+    if (topBank) {
+      for (let i = 0; i <= t; i++) {
+        const monthResults = calculateSavingsReturns(P, i, topBank.tasaEA);
+        growthData.push({
+          month: `Mes ${i}`,
+          balance: Math.round(monthResults.finalAmount),
+        });
+      }
+    }
+    setChartData(growthData);
+
+    // Gráfico de comparación (BarChart) - Top 5
+    const top5 = results.slice(0, 5).map((bank) => ({
+      name: bank.name,
+      returns: bank.interestsRaw,
+    }));
+    setComparisonData(top5);
+  }, [amount, months, isChecked, displayedBanks]);
 
   const isFormFilled = amount && months;
 
@@ -338,10 +377,10 @@ export default function Home() {
                           {parseFloat(
                             bank.retention.replace(/[^0-9.-]+/g, "")
                           ) > 1 && (
-                            <span className="text-red-400 text-sm">
-                              (RTE FTE: -{bank.retention})
-                            </span>
-                          )}
+                              <span className="text-red-400 text-sm">
+                                (RTE FTE: -{bank.retention})
+                              </span>
+                            )}
                         </div>
                         <p className="text-yellow-400 text-sm">
                           Tu dinero habrá crecido: {bank.interests}
@@ -376,6 +415,108 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Gráficos de Visualización */}
+      {isFormFilled && chartData.length > 0 && (
+        <section className="grid gap-6 md:grid-cols-2 w-full px-4 xl:px-28">
+          {/* Gráfico de Comparación */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card className="bg-neutral-900 border-neutral-800">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <BarChart3 className="text-[#00d992]" size={18} />
+                  Comparación Top 5 Bancos
+                </CardTitle>
+                <CardDescription>
+                  Rendimientos netos de los mejores bancos
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-2">
+                <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                  <BarChart
+                    data={comparisonData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                    <XAxis
+                      dataKey="name"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#888' }}
+                      angle={-15}
+                      textAnchor="end"
+                      height={60}
+                    />
+                    <YAxis hide domain={['auto', 'auto']} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar
+                      dataKey="returns"
+                      fill="#00d992"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Gráfico de Crecimiento */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card className="bg-neutral-900 border-neutral-800">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <TrendingUp className="text-[#00d992]" size={18} />
+                  Proyección de Crecimiento
+                </CardTitle>
+                <CardDescription>
+                  Evolución del saldo con el mejor banco
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-2">
+                <ChartContainer config={chartConfig} className="h-[250px] w-full">
+                  <AreaChart
+                    data={chartData}
+                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
+                    <XAxis
+                      dataKey="month"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fill: '#888' }}
+                      interval={Math.floor(chartData.length / 5)}
+                    />
+                    <YAxis hide domain={['dataMin - 10000', 'auto']} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area
+                      type="monotone"
+                      dataKey="balance"
+                      stroke="#00d992"
+                      strokeWidth={2}
+                      fillOpacity={1}
+                      fill="url(#colorBalanceSavings)"
+                    />
+                    <defs>
+                      <linearGradient id="colorBalanceSavings" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#00d992" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#00d992" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                  </AreaChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </section>
+      )}
 
       <section className="p-6 md:px-28 w-full md:w-[70%]">
         <Faq />

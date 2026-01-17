@@ -91,8 +91,8 @@ export default function Navigation({
         "Encuentra la mejor tasa de interés para tu dinero y hazlo rendir.",
     },
     {
-      title: "(Proximamente) Calculadora CDT",
-      href: "/",
+      title: "Calculadora CDT",
+      href: "/cdt",
       description: "Calcula el rendimiento de tu CDT en segundos.",
     },
   ],
