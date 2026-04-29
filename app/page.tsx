@@ -27,7 +27,11 @@ import { Badge } from "@/components/ui/badge";
 import { DialogDetails } from "./_components/core/DialogDetails";
 import DialogFormula from "./_components/core/DialogFormula";
 
-import { calculateSavingsReturns, formatCurrency } from "@/lib/finance-utils";
+import {
+  calculateMonthlyNetRate,
+  calculateSavingsReturns,
+  formatCurrency,
+} from "@/lib/finance-utils";
 import {
   Area,
   AreaChart,
@@ -406,9 +410,24 @@ export default function Home() {
                       </div>
                     </article>
 
-                    <article className="flex flex-col gap-2">
-                      <article className="bg-[#122322] w-full text-[#00d992] px-4 py-2 rounded-md text-sm font-bold text-center self-start md:self-auto">
-                        {bank.tasaEA}%
+                    <article className="flex flex-col items-start md:items-end gap-2">
+                      <article className="bg-[#122322] w-full text-[#00d992] px-4 py-2 rounded-md text-sm font-bold self-start md:self-auto inline-flex items-center justify-center gap-2">
+                        <span>{bank.tasaEA}%</span>
+                        <div className="relative group">
+                          <button
+                            type="button"
+                            aria-label="Ver neto mensual aproximado"
+                            className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#00d992]/40 bg-[#00d992]/15 text-[11px] leading-none"
+                          >
+                            !
+                          </button>
+                          <div className="pointer-events-none absolute right-0 top-full z-10 mt-2 w-52 rounded-md border border-neutral-700 bg-neutral-900 px-3 py-2 text-[11px] text-neutral-200 opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                            Neto mensual aprox:{" "}
+                            <span className="font-semibold text-[#8bf5cf]">
+                              {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
+                            </span>
+                          </div>
+                        </div>
                       </article>
 
                       <DialogDetails {...bank} />

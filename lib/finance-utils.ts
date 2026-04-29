@@ -56,6 +56,21 @@ export const calculateSavingsReturns = (amount: number, months: number, tasaEA: 
 };
 
 /**
+ * Calculates the approximate monthly net rate from an effective annual rate.
+ * Uses a default 7% retention over monthly interests for savings accounts.
+ */
+export const calculateMonthlyNetRate = (
+  tasaEA: number,
+  retentionRate = 0.07,
+): number => {
+  const EA = tasaEA / 100;
+  const grossMonthlyRate = Math.pow(1 + EA, 1 / 12) - 1;
+  const netMonthlyRate = grossMonthlyRate * (1 - retentionRate);
+
+  return netMonthlyRate * 100;
+};
+
+/**
  * Calculates returns for CDT (Standard bank formulation)
  */
 export const calculateCDTReturns = (amount: number, months: number, tasaEA: number) => {

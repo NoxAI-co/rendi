@@ -9,6 +9,7 @@ import {
 import { Banks, DepositosBajoMonto } from "@/app/_DATA/Banks";
 import Image from "next/image";
 import Link from "next/link";
+import { calculateMonthlyNetRate } from "@/lib/finance-utils";
 
 export function CarouselBanks() {
   const combinedBanks = [...Banks, ...DepositosBajoMonto];
@@ -69,9 +70,17 @@ export function CarouselBanks() {
                         )}
                       </div>
                     </div>
-                    <span className="text-4xl font-bold text-[#00d983]">
-                      {bank.tasaEA}%
-                    </span>
+                    <div className="flex flex-col items-end gap-1.5 shrink-0">
+                      <span className="text-4xl font-bold text-[#00d983]">
+                        {bank.tasaEA}%
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-neutral-700 bg-neutral-900/80 text-[10px] text-neutral-300">
+                        <span className="uppercase tracking-wide text-neutral-400">Neto mes</span>
+                        <span className="font-semibold text-[#8bf5cf]">
+                          {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
+                        </span>
+                      </span>
+                    </div>
                   </CardContent>
                 </Link>
               </Card>

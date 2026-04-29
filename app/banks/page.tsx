@@ -9,6 +9,7 @@ import { Footer } from "../_components/core/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Landmark, TrendingUp, ChevronLeft } from "lucide-react";
+import { calculateMonthlyNetRate } from "@/lib/finance-utils";
 
 export default function BanksPage() {
   const allBanks = [...Banks, ...DepositosBajoMonto];
@@ -106,6 +107,12 @@ export default function BanksPage() {
                         <p className="text-neutral-500 text-[10px] font-bold uppercase">Tasa Efectiva Anual</p>
                         <div className={`text-3xl font-black ${bank.act ? 'text-[#00d992]' : 'text-neutral-300'}`}>
                           {bank.tasaEA}%
+                        </div>
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-neutral-700 bg-neutral-900/80 text-[10px] text-neutral-300">
+                          <span className="uppercase tracking-wide text-neutral-400">Neto mes</span>
+                          <span className="font-semibold text-[#8bf5cf]">
+                            {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
+                          </span>
                         </div>
                       </div>
                       <div className={`p-2 rounded-lg transition-colors mb-1 ${bank.act ? 'bg-[#00d992]/10 text-[#00d992] group-hover:bg-[#00d992] group-hover:text-black' : 'bg-neutral-800 text-neutral-500 group-hover:bg-neutral-700'}`}>

@@ -5,6 +5,7 @@ import { Banks, DepositosBajoMonto } from "../../_DATA/Banks";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { calculateMonthlyNetRate } from "@/lib/finance-utils";
 
 interface CardBankProps {
   slug: string;
@@ -130,6 +131,12 @@ export const DetailedCardBank = ({ slug }: CardBankProps) => {
                 >
                   {bank.tasaEA}%
                 </motion.span>
+                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-primary/20 bg-primary/10 text-[10px] text-primary/90 mt-2">
+                  <span className="uppercase tracking-wide text-primary/70">Neto mes</span>
+                  <span className="font-semibold">
+                    {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
+                  </span>
+                </span>
                 {bank.act && (
                   <motion.span
                     className="text-xs text-green-500 flex items-center mt-1"
