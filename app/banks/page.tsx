@@ -35,9 +35,30 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+// Construye el array con posiciones fijas para Nubank (pos 5) y RappiPay (pos 2)
+function buildBanksOrder(all: typeof Banks): typeof Banks {
+  const nubank   = all.find((b) => b.name === "Nubank");
+  const rappipay = all.find((b) => b.name === "RappiPay");
+  const rest     = shuffle(all.filter((b) => b.name !== "Nubank" && b.name !== "RappiPay"));
+
+  // Slot 2 → RappiPay, Slot 5 → Nubank; los demás se llenan con el resto en orden
+  const result: (typeof Banks[number] | undefined)[] = Array(11).fill(undefined);
+  if (rappipay) result[2] = rappipay;
+  if (nubank)   result[5] = nubank;
+
+  let ri = 0;
+  for (let i = 0; i < result.length; i++) {
+    if (!result[i] && ri < rest.length) {
+      result[i] = rest[ri++];
+    }
+  }
+
+  return result.filter(Boolean) as typeof Banks;
+}
+
 export default function BanksPage() {
   const allBanks = useMemo(
-    () => shuffle([...Banks, ...DepositosBajoMonto]),
+    () => buildBanksOrder([...Banks, ...DepositosBajoMonto]),
     []
   );
 
@@ -85,7 +106,8 @@ export default function BanksPage() {
       >
         {allBanks.map((bank, index) => {
           const pos = positions[index] ?? { col: "auto", row: "auto", large: false, imgIdx: 0 };
-          const hero = bank.siteImages?.[pos.imgIdx] ?? bank.siteImages?.[0] ?? bank.image;
+          const forcedImg = (bank.name === "Nubank" || bank.name === "RappiPay") ? 0 : pos.imgIdx;
+          const hero = bank.siteImages?.[forcedImg] ?? bank.siteImages?.[0] ?? bank.image;
           const slug = encodeURIComponent(bank.name.toLowerCase().replace(/ /g, "-"));
           const monthlyNet = calculateMonthlyNetRate(bank.tasaEA).toFixed(2);
 
@@ -118,7 +140,7 @@ export default function BanksPage() {
       >
         {allBanks.map((bank, index) => {
           const isLarge = positions[index]?.large ?? false;
-          const imgIdx = positions[index]?.imgIdx ?? 0;
+          const imgIdx = (bank.name === "Nubank" || bank.name === "RappiPay") ? 0 : (positions[index]?.imgIdx ?? 0);
           const hero = bank.siteImages?.[imgIdx] ?? bank.siteImages?.[0] ?? bank.image;
           const slug = encodeURIComponent(bank.name.toLowerCase().replace(/ /g, "-"));
           const monthlyNet = calculateMonthlyNetRate(bank.tasaEA).toFixed(2);

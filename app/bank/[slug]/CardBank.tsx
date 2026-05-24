@@ -22,7 +22,7 @@ export const DetailedCardBank = ({ slug }: CardBankProps) => {
   const router = useRouter();
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" }, [
-    AutoScroll({ startDelay: 1000, stopOnInteraction: false, stopOnMouseEnter: true }),
+    AutoScroll({ startDelay: 1000, stopOnInteraction: false, stopOnMouseEnter: true, speed: 0.5 }),
   ]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);

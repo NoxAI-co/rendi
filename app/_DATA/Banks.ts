@@ -30,8 +30,11 @@ export const Banks: Bank[] = [
     ],
     type: "Cajita de ahorros",
     cdtOptions: [
-      { rate: 9.0, months: 2 },
-      { rate: 9.2, months: 3 },
+      { rate: 9.50, months: 2 },
+      { rate: 9.60, months: 3 },
+      { rate: 10.50, months: 6 },
+      { rate: 11.00, months: 12 },
+      { rate: 12.20, months: 35 },
     ],
   },
   {
@@ -95,6 +98,11 @@ export const Banks: Bank[] = [
       "/webs/rappipay/rappi4.jfif",
     ],
     tasaEA: 9,
+    cdtOptions: [
+      { rate: 9.50, months: 3 },
+      { rate: 10.10, months: 6 },
+      { rate: 10.50, months: 12 },
+    ],
     image: "/rappi.jpg",
     id: 4,
   },
