@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node \"c:/Users/santi/OneDrive2/Documentos/Proyectos de desarrollo/elmony/scripts/generate-last-update.mjs\")"
+    ]
+  }
+}

@@ -28,7 +28,7 @@ export const Banks: Bank[] = [
   {
     name: "Bold",
     type: "Bolsillos de Ahorro",
-    tasaEA: 8.5,
+    tasaEA: 9,
     image: "/bold.webp",
     id: 10,
     act: true,

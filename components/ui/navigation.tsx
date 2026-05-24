@@ -16,6 +16,7 @@ import {
 import { Badge } from "./badge";
 import LaunchUI from "../logos/launch-ui";
 import { ReactNode } from "react";
+import { LAST_UPDATE } from "@/lib/last-update";
 
 interface ComponentItem {
   title: string;
@@ -79,7 +80,7 @@ export default function Navigation({
       title: "Ultima actualización",
       href: "/",
       description:
-        "La ultima actualización de tasas fue el 17/01/2026.",
+        `La ultima actualización de tasas fue el ${LAST_UPDATE}.`,
     },
     {
       title: "Reportes de tasas",

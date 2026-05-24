@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "generate:last-update": "node scripts/generate-last-update.mjs",
+    "predev": "npm run generate:last-update",
+    "prebuild": "npm run generate:last-update",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
