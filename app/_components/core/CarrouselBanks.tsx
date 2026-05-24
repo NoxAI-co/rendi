@@ -1,6 +1,7 @@
+"use client";
+
 import * as React from "react";
 import AutoScroll from "embla-carousel-auto-scroll";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -10,13 +11,15 @@ import { Banks, DepositosBajoMonto } from "@/app/_DATA/Banks";
 import Image from "next/image";
 import Link from "next/link";
 import { calculateMonthlyNetRate } from "@/lib/finance-utils";
+import { ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ProgressiveBlur } from "@/components/ui/progressive-blur";
 
 export function CarouselBanks() {
   const combinedBanks = [...Banks, ...DepositosBajoMonto];
 
   return (
     <div className="relative mx-auto md:px-4 max-w-7xl overflow-hidden">
-      {/* Gradientes para mejorar la visibilidad */}
+      {/* Gradientes laterales */}
       <div className="hidden md:block pointer-events-none absolute top-0 left-0 h-full w-20 bg-gradient-to-r from-white dark:from-[#090d10] to-transparent z-10" />
       <div className="hidden md:block pointer-events-none absolute top-0 right-0 h-full w-20 bg-gradient-to-l from-white dark:from-[#090d10] to-transparent z-10" />
 
@@ -24,7 +27,7 @@ export function CarouselBanks() {
         plugins={[
           AutoScroll({
             active: true,
-            speed: 1,
+            speed: 0.8,
             stopOnMouseEnter:
               typeof window !== "undefined" && window.innerWidth >= 1024,
             stopOnInteraction: false,
@@ -33,59 +36,106 @@ export function CarouselBanks() {
         ]}
         className="w-full"
       >
-        <CarouselContent className="flex snap-x scroll-pl-4">
-          {combinedBanks.map((bank, index) => (
-            <CarouselItem
-              key={index}
-              className="w-full sm:basis-1/1 md:basis-1/1 lg:basis-1/3"
-            >
-              <Card className="transition-all hover:shadow-lg hover:scale-[1.03] duration-200">
-                <Link href={`/bank/${bank.name.toLowerCase()}`}>
-                  <CardContent className="flex items-center justify-between p-4">
-                    <div className="flex gap-4 items-center">
-                      <Image
-                        src={bank.image}
-                        alt={bank.name}
-                        width={50}
-                        height={50}
-                        className="rounded-lg"
-                      />
+        <CarouselContent className="flex py-4 px-4 -ml-0">
+          {combinedBanks.map((bank, index) => {
+            const slug = encodeURIComponent(
+              bank.name.toLowerCase().replace(/ /g, "-"),
+            );
+            const hero = bank.siteImages?.[0] ?? bank.image;
+            const monthlyNet = calculateMonthlyNetRate(bank.tasaEA).toFixed(2);
 
-                      <div>
-                        <article className="flex items-center gap-2">
-                          <span className="text-xl font-semibold whitespace-nowrap truncate">
+            return (
+              <CarouselItem
+                key={index}
+                className="pl-4 basis-[260px] md:basis-[280px]"
+              >
+                <Link
+                  href={`/bank/${slug}`}
+                  className="group relative block h-[430px] md:h-[460px] w-full rounded-3xl overflow-hidden border border-white/10 shadow-xl hover:shadow-2xl hover:border-[#00d992]/40 transition-all duration-300"
+                >
+                  {/* Full-bleed hero image */}
+                  <Image
+                    src={hero}
+                    alt={bank.name}
+                    fill
+                    unoptimized
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="280px"
+                  />
+
+                  {/* Progressive blur — image gradually loses sharpness toward the bottom */}
+                  <ProgressiveBlur
+                    position="bottom"
+                    height="55%"
+                    blurLevels={[0.5, 1, 2, 4, 8, 16, 32, 64]}
+                  />
+
+                  {/* Dark gradient on top of blur for text contrast */}
+                  <div
+                    className="absolute inset-0 pointer-events-none z-10"
+                    style={{
+                      background:
+                        "linear-gradient(to top, rgba(9,13,16,0.85) 0%, rgba(9,13,16,0.55) 25%, rgba(9,13,16,0.15) 50%, rgba(9,13,16,0) 65%)",
+                    }}
+                  />
+
+                  {/* Content overlay */}
+                  <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 gap-3">
+                    {/* Logo + name + verified */}
+                    <div className="flex items-center gap-2.5">
+                      <div className="relative w-10 h-10 rounded-xl overflow-hidden bg-white/10 border border-white/20 shrink-0 backdrop-blur-sm">
+                        <Image
+                          src={bank.image}
+                          alt={bank.name}
+                          fill
+                          className="object-contain p-0.5 rounded-lg"
+                        />
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-white font-semibold text-base leading-tight truncate drop-shadow">
                             {bank.name}
-                          </span>
-                        </article>
-                        <p className="text-neutral-500 text-sm">{bank.type}</p>
-
-                        {bank.act ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#00d983]/10 text-[#00d983] dark:bg-[#00d983]/20 dark:text-[#00d983]">
-                            Tasa Actualizada
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-800 :text-zinc-400">
-                            Tasa sin cambios
-                          </span>
-                        )}
+                          </h3>
+                          {bank.act && (
+                            <CheckCircle2
+                              className="w-4 h-4 text-[#00d992] shrink-0 drop-shadow"
+                              aria-label="Tasa actualizada"
+                            />
+                          )}
+                        </div>
+                        <p className="text-white/70 text-[10px] uppercase tracking-wider truncate">
+                          {bank.type || "Entidad financiera"}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <span className="text-4xl font-bold text-[#00d983]">
-                        {bank.tasaEA}%
-                      </span>
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-neutral-700 bg-neutral-900/80 text-[10px] text-neutral-300">
-                        <span className="uppercase tracking-wide text-neutral-400">Neto mes</span>
-                        <span className="font-semibold text-[#8bf5cf]">
-                          {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
+
+                    {/* Stats + CTA row — glass on top of gradient */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-baseline gap-1 px-2.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
+                        <span className="text-[#00d992] font-black text-sm leading-none">
+                          {bank.tasaEA}%
                         </span>
+                        <span className="text-white/60 text-[9px] uppercase tracking-wider">
+                          EA
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-1 px-2.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
+                        <span className="text-[#8bf5cf] font-bold text-sm leading-none">
+                          {monthlyNet}%
+                        </span>
+                        <span className="text-white/60 text-[9px] uppercase tracking-wider">
+                          mes
+                        </span>
+                      </div>
+                      <span className="ml-auto inline-flex items-center justify-center w-9 h-9 rounded-full bg-white text-black group-hover:bg-[#00d992] transition-all shadow-md">
+                        <ArrowUpRight className="w-4 h-4" />
                       </span>
                     </div>
-                  </CardContent>
+                  </div>
                 </Link>
-              </Card>
-            </CarouselItem>
-          ))}
+              </CarouselItem>
+            );
+          })}
         </CarouselContent>
       </Carousel>
     </div>

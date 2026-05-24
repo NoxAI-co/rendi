@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useEffect } from "react";
+import { useId, useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import CurrencyInput from "react-currency-input-field";
 import Navbar from "../_components/core/Header";
@@ -32,7 +32,15 @@ import {
     type ChartConfig
 } from "@/components/ui/chart";
 
-export default function CDTCalculator() {
+export default function CDTPage() {
+  return (
+    <Suspense>
+      <CDTCalculator />
+    </Suspense>
+  );
+}
+
+function CDTCalculator() {
     const id = useId();
     const searchParams = useSearchParams();
     const [amount, setAmount] = useState("5000000");
