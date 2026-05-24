@@ -1,48 +1,56 @@
 import Image from "next/image";
 import Link from "next/link";
+import { LAST_UPDATE } from "@/lib/last-update";
 
 export const Footer = () => {
   return (
-    <footer className="bg-neutral-900 text-white py-12 px-6 rounded-2xl">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        <div>
-          <Image src="/logo.png" alt="rendi" width={80} height={80} />
-          <p className="text-sm text-neutral-400 mt-2">
-            Optimiza tus ahorros y descubre cuánto puedes ganar con las mejores
-            tasas en Colombia 🚀
-          </p>
-        </div>
+    <footer className="w-full mt-16 px-4 pb-8">
+      <div className="max-w-5xl mx-auto rounded-3xl border border-white/8 bg-background/40 backdrop-blur-xl p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Brand */}
+          <div className="flex flex-col gap-3">
+            <Link href="/" className="flex items-center gap-2 w-fit">
+              <Image src="/logo.png" alt="rendi" width={28} height={28} className="rounded-md" />
+              <span className="font-bold text-foreground">rendi</span>
+            </Link>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Optimiza tus ahorros y descubre cuánto puedes ganar con las mejores tasas en Colombia.
+            </p>
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium bg-[#00d992]/10 text-[#00d992] w-fit">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00d992]" />
+              Actualizado: {LAST_UPDATE}
+            </span>
+          </div>
 
-        <div className="flex flex-col space-y-3">
-          <h3 className="font-semibold text-lg">Legal</h3>
-          <Link
-            href="/terminos-y-condiciones"
-            className="text-neutral-400 hover:text-white transition"
-          >
-            Terminos y condiciones
-          </Link>
-        </div>
-
-        <div className="relative w-full max-w-sm rounded-xl overflow-hidden bg-neutral-800 text-white shadow-lg">
-          <div className="h-20 bg-neutral-600"></div>
-
-          <div className="px-6 py-4 relative flex items-center">
-            <div className="absolute -top-10 left-4 w-24 h-24 rounded-full overflow-hidden border-2 border-neutral-900 flex items-center justify-center bg-black"></div>
-
-            <div className="absolute right-0 w-24 h-24 rounded-full">
-              <Link
-                className="text-white bg-blue-500 px-4 py-2 rounded-full text-sm font-semibold hover:bg-transparent border border-transparent hover:border-blue-500 transition"
-                target="_blank"
-                href="https://eddyy.dev/"
-              >
-                Follow
+          {/* Links */}
+          <div className="flex flex-col gap-3">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Herramientas
+            </h3>
+            <div className="flex flex-col gap-2">
+              <Link href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Calculadora de ahorros
+              </Link>
+              <Link href="/cdt" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Calculadora CDT
+              </Link>
+              <Link href="/banks" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Ver todos los bancos
               </Link>
             </div>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-2">
+              Legal
+            </h3>
+            <Link href="/terminos-y-condiciones" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Términos y condiciones
+            </Link>
+          </div>
 
-            <div className="mt-12">
-              <h3 className="text-xl font-bold">@EddySantiago</h3>
-              <p className="text-sm text-neutral-400">El progenitor</p>
-            </div>
+          {/* Creator */}
+          <div className="flex flex-col gap-3">
+            <p className="text-xs text-muted-foreground">
+              Las tasas mostradas son referenciales. No constituyen asesoría financiera.
+            </p>
           </div>
         </div>
       </div>

@@ -5,6 +5,8 @@ import { Analytics } from "@vercel/analytics/react"
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Blobs } from "./_components/core/Blob";
+import Navbar from "./_components/core/Header";
+import { Footer } from "./_components/core/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -66,7 +68,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="min-h-screen flex flex-col text-white">
+            <Navbar />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
           <Analytics />
           <Blobs />
         </ThemeProvider>

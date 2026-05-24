@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import { Banks, DepositosBajoMonto } from "../_DATA/Banks";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "../_components/core/Header";
-import { Footer } from "../_components/core/Footer";
 import { ArrowLeft, CheckCircle2, TrendingUp } from "lucide-react";
 import { calculateMonthlyNetRate } from "@/lib/finance-utils";
 
@@ -23,9 +21,7 @@ export default function BanksPage() {
   const allBanks = [...Banks, ...DepositosBajoMonto];
 
   return (
-    <div className="min-h-screen text-white flex flex-col items-center space-y-10">
-      <Navbar />
-
+    <div className="flex flex-col items-center space-y-10 pb-8">
       <div className="w-full px-4 xl:px-28 space-y-8">
         {/* Header */}
         <motion.div
@@ -135,7 +131,6 @@ export default function BanksPage() {
         </motion.div>
       </div>
 
-      <Footer />
     </div>
   );
 }

@@ -1,118 +1,126 @@
-import Navigation from "@/components/ui/navigation";
-import { Button, type ButtonProps } from "@/components/ui/button";
-import {
-  Navbar as NavbarComponent,
-  NavbarLeft,
-  NavbarRight,
-} from "@/components/ui/navbar";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+"use client";
 
-import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-interface NavbarLink {
-  text: string;
-  href: string;
-  badge?: string;
-}
+const links = [
+  { href: "/", label: "Inicio" },
+  { href: "/banks", label: "Bancos" },
+  { href: "/cdt", label: "Calculadora CDT", badge: "Nuevo" },
+];
 
-interface NavbarActionProps {
-  text: string;
-  href: string;
-  variant?: ButtonProps["variant"];
-  icon?: ReactNode;
-  iconRight?: ReactNode;
-  isButton?: boolean;
-}
+export default function Navbar() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
-interface NavbarProps {
-  logoSrc?: string;
-  name?: string;
-  homeUrl?: string;
-  mobileLinks?: NavbarLink[];
-  actions?: NavbarActionProps[];
-  showNavigation?: boolean;
-  customNavigation?: ReactNode;
-  className?: string;
-  logoAlt?: string;
-  logoClassName?: string;
-}
-
-export default function Navbar({
-  logoSrc = "/logo.png",
-  logoAlt = "Logo",
-  logoClassName = "h-8",
-  name = "rendi",
-  homeUrl = "/",
-  mobileLinks = [
-    { text: "Inicio", href: "/" },
-    { text: "Calculadora CDT", href: "/cdt", badge: "Nuevo" },
-    { text: "Bancos", href: "/" },
-    { text: "Terminos y condiciones", href: "/terminos-y-condiciones" },
-  ],
-  showNavigation = true,
-  customNavigation,
-  className,
-}: NavbarProps) {
   return (
-    <header className={cn("sticky top-0 z-50 -mb-4 px-4 pb-4", className)}>
-      <div className="fade-bottom bg-background/15 absolute left-0  w-full backdrop-blur-lg"></div>
-      <div className="max-w-container relative mx-auto flex items-center justify-between mt-4 px-4 bg-background/40 rounded-lg backdrop-blur-lg shadow-md border ">
-        <NavbarComponent>
-          <NavbarLeft>
-            <Link
-              href={homeUrl}
-              className="flex items-center gap-2 text-xl font-bold"
-            >
-              <img src={logoSrc} alt={logoAlt} className={logoClassName} />
-              {name}
-            </Link>
-            {showNavigation && (customNavigation || <Navigation />)}
-          </NavbarLeft>
-          <NavbarRight>
+    <>
+      <header className="sticky top-0 z-50 w-full px-4 pt-4 pb-2">
+        <nav className="max-w-5xl mx-auto flex items-center justify-between gap-4 px-4 h-12 rounded-2xl bg-background/50 backdrop-blur-xl border border-white/8 shadow-lg">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <Image src="/logo.png" alt="rendi" width={24} height={24} className="rounded-md" />
+            <span className="font-bold text-foreground tracking-tight">rendi</span>
+          </Link>
 
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0 md:hidden ml-12"
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-1">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm transition-all",
+                  pathname === link.href
+                    ? "bg-[#00d992]/15 text-[#00d992] font-medium"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                {link.label}
+                {link.badge && (
+                  <Badge className="bg-[#00d992]/15 text-[#00d992] border-none text-[9px] px-1.5 py-0 h-4 uppercase font-bold">
+                    {link.badge}
+                  </Badge>
+                )}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            className="md:hidden flex items-center justify-center w-8 h-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
+            onClick={() => setOpen(true)}
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        </nav>
+      </header>
+
+      {/* Mobile drawer */}
+      {open && (
+        <div className="fixed inset-0 z-[100] md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          />
+          {/* Panel */}
+          <div className="absolute right-0 top-0 h-full w-72 bg-background/95 backdrop-blur-xl border-l border-white/8 shadow-2xl flex flex-col p-6 gap-6">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+                <Image src="/logo.png" alt="rendi" width={24} height={24} className="rounded-md" />
+                <span className="font-bold text-foreground">rendi</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center w-8 h-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-white/5 transition-all"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-1">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-3 rounded-xl text-sm transition-all",
+                    pathname === link.href
+                      ? "bg-[#00d992]/15 text-[#00d992] font-medium"
+                      : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                  )}
                 >
-                  <Menu className="size-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right">
-                <nav className="grid gap-6 text-lg font-medium">
-                  <Link
-                    href={homeUrl}
-                    className="flex items-center gap-2 text-xl font-bold"
-                  >
-                    <span>{name}</span>
-                  </Link>
-                  {mobileLinks.map((link, index) => (
-                    <Link
-                      key={index}
-                      href={link.href}
-                      className="text-muted-foreground hover:text-foreground flex items-center gap-2"
-                    >
-                      {link.text}
-                      {link.badge && (
-                        <Badge variant="secondary" className="bg-[#00d992]/10 text-[#00d992] border-none text-[10px] px-1.5 py-0 h-4 uppercase font-bold">
-                          {link.badge}
-                        </Badge>
-                      )}
-                    </Link>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </NavbarRight>
-        </NavbarComponent>
-      </div>
-    </header>
+                  {link.label}
+                  {link.badge && (
+                    <Badge className="bg-[#00d992]/15 text-[#00d992] border-none text-[9px] px-1.5 py-0 h-4 uppercase font-bold">
+                      {link.badge}
+                    </Badge>
+                  )}
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-auto">
+              <Link
+                href="/terminos-y-condiciones"
+                onClick={() => setOpen(false)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Términos y condiciones
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,10 +1,6 @@
-import { Footer } from "../_components/core/Footer";
-import Navbar from "../_components/core/Header";
-
 export default function TermsPage() {
   return (
-    <div className="min-h-screen text-white flex flex-col items-center space-y-12">
-      <Navbar />
+    <div className="flex flex-col items-center space-y-12 pb-8">
 
       <header className="w-full max-w-4xl text-center py-6 border-b border-gray-700">
         <h1 className="text-lg md:text-4xl font-bold">Términos y Condiciones</h1>
@@ -61,7 +57,6 @@ export default function TermsPage() {
         </section>
       </main>
 
-      <Footer />
     </div>
   );
 }

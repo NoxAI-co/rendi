@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import Navbar from "../../_components/core/Header";
-import { Footer } from "../../_components/core/Footer";
 import { Banks } from "../../_DATA/Banks";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 import Link from "next/link";
@@ -25,9 +23,7 @@ export default function CDTList() {
     ).sort((a, b) => b.option.rate - a.option.rate);
 
     return (
-        <div className="min-h-screen text-white flex flex-col items-center space-y-10">
-            <Navbar />
-
+        <div className="flex flex-col items-center space-y-10 pb-8">
             <div className="w-full px-4 xl:px-28 space-y-8">
                 {/* Header */}
                 <motion.div

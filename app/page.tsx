@@ -9,7 +9,6 @@ import CurrencyInput from "react-currency-input-field";
 import { Banks, DepositosBajoMonto } from "./_DATA/Banks";
 import { CarouselBanks } from "./_components/core/CarrouselBanks";
 import DialogEa from "./_components/core/DialogEa";
-import Navbar from "./_components/core/Header";
 import Image from "next/image";
 import { Label } from "@/components/ui/label";
 import {
@@ -23,7 +22,6 @@ import { Switch } from "@/components/ui/switch";
 import { Info, TriangleAlert, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Faq } from "./_components/core/Faq";
-import { Footer } from "./_components/core/Footer";
 import { Badge } from "@/components/ui/badge";
 import { DialogDetails } from "./_components/core/DialogDetails";
 import DialogFormula from "./_components/core/DialogFormula";
@@ -155,8 +153,7 @@ export default function Home() {
   const isFormFilled = amount && months;
 
   return (
-    <div className="min-h-screen text-white flex flex-col items-center space-y-12">
-      <Navbar />
+    <div className="flex flex-col items-center space-y-12 pb-8">
       <div className="absolute top-0 flex justify-center w-full"></div>
       <div className="rounded-xl gap-4 grid place-items-center w-full text-center px-4">
         <article className="flex flex-col">
@@ -567,7 +564,6 @@ export default function Home() {
       <section className="p-6 md:px-28 w-full md:w-[70%]">
         <Faq />
       </section>
-      <Footer />
     </div>
   );
 }

@@ -3,8 +3,6 @@
 import { useId, useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import CurrencyInput from "react-currency-input-field";
-import Navbar from "../_components/core/Header";
-import { Footer } from "../_components/core/Footer";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -111,9 +109,7 @@ function CDTCalculator() {
     };
 
     return (
-        <div className="min-h-screen text-white flex flex-col items-center space-y-12">
-            <Navbar />
-
+        <div className="flex flex-col items-center space-y-12 pb-8">
             <div className="rounded-xl gap-4 grid place-items-center w-full text-center px-4 mt-8">
                 <motion.article
                     initial={{ opacity: 0, y: 20 }}
@@ -320,7 +316,6 @@ function CDTCalculator() {
                 </div>
             </section>
 
-            <Footer />
         </div>
     );
 }
