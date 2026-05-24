@@ -4,133 +4,212 @@ import { motion } from "framer-motion";
 import { Banks, DepositosBajoMonto } from "../_DATA/Banks";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, TrendingUp } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { calculateMonthlyNetRate } from "@/lib/finance-utils";
+import { ProgressiveBlur } from "@/components/ui/progressive-blur";
+import { useMemo } from "react";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
-};
+// Posiciones explícitas en un grid de 4 columnas × 5 filas
+// Notación CSS: "colStart / colEnd" y "rowStart / rowEnd"
+// imgIdx: which siteImages slot to use for that position
+const positions = [
+  { col: "1 / 3", row: "1 / 3", large: true,  imgIdx: 0 }, // 0 — 2×2 hero
+  { col: "3 / 4", row: "1 / 2", large: false, imgIdx: 1 }, // 1 — 1×1
+  { col: "4 / 5", row: "1 / 3", large: false, imgIdx: 0 }, // 2 — 1×2 alto
+  { col: "3 / 4", row: "2 / 3", large: false, imgIdx: 1 }, // 3 — 1×1
+  { col: "1 / 2", row: "3 / 4", large: false, imgIdx: 1 }, // 4 — 1×1
+  { col: "2 / 4", row: "3 / 5", large: true,  imgIdx: 0 }, // 5 — 2×2 centro
+  { col: "4 / 5", row: "3 / 4", large: false, imgIdx: 1 }, // 6 — 1×1
+  { col: "1 / 2", row: "4 / 5", large: false, imgIdx: 0 }, // 7 — 1×1
+  { col: "4 / 5", row: "4 / 5", large: false, imgIdx: 1 }, // 8 — 1×1
+  { col: "1 / 3", row: "5 / 6", large: false, imgIdx: 1 }, // 9 — 2×1 ancho
+  { col: "3 / 5", row: "5 / 6", large: false, imgIdx: 0 }, // 10 — 2×1 ancho
+];
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export default function BanksPage() {
-  const allBanks = [...Banks, ...DepositosBajoMonto];
+  const allBanks = useMemo(
+    () => shuffle([...Banks, ...DepositosBajoMonto]),
+    []
+  );
 
-  return (
-    <div className="flex flex-col items-center space-y-10 pb-8">
-      <div className="w-full px-4 xl:px-28 space-y-8">
-        {/* Header */}
-        <motion.div
-          className="flex flex-col md:flex-row md:items-end justify-between gap-4"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="space-y-3">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 px-3 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all text-sm text-foreground w-fit"
+  return (    <div className="flex flex-col space-y-8 pb-8 px-4 xl:px-40 2xl:px-64 pt-6 mx-auto w-full">
+
+      {/* Header */}
+      <motion.div
+        className="flex flex-col md:flex-row md:items-end justify-between gap-4"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="space-y-3">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-3 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all text-sm text-foreground w-fit"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Inicio
+          </Link>
+          <h1 className="text-3xl md:text-4xl font-bold text-[#00d992] tracking-tight">
+            Entidades Financieras
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Explora y compara las mejores tasas de interés en Colombia.
+          </p>
+        </div>
+
+        <span className="inline-flex items-baseline gap-2 px-4 py-2 rounded-full bg-[#00d992]/15 border border-[#00d992]/30 text-[#00d992] text-sm font-bold w-fit">
+          <span className="text-[10px] uppercase tracking-wider text-[#00d992]/80">Total</span>
+          {allBanks.length} entidades
+        </span>
+      </motion.div>
+
+      {/* Desktop bento grid — explicit positions */}
+      <motion.div
+        className="hidden md:grid gap-3"
+        style={{
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateRows: "repeat(5, 160px)",
+        }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        {allBanks.map((bank, index) => {
+          const pos = positions[index] ?? { col: "auto", row: "auto", large: false, imgIdx: 0 };
+          const hero = bank.siteImages?.[pos.imgIdx] ?? bank.siteImages?.[0] ?? bank.image;
+          const slug = encodeURIComponent(bank.name.toLowerCase().replace(/ /g, "-"));
+          const monthlyNet = calculateMonthlyNetRate(bank.tasaEA).toFixed(2);
+
+          return (
+            <motion.div
+              key={bank.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: index * 0.04 }}
+              style={{ gridColumn: pos.col, gridRow: pos.row }}
             >
-              <ArrowLeft className="w-4 h-4" />
-              Inicio
-            </Link>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#00d992] tracking-tight">
-              Entidades Financieras
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              Explora y compara las mejores tasas de interés en Colombia.
-            </p>
-          </div>
+              <BentoCard
+                bank={bank}
+                hero={hero}
+                slug={slug}
+                monthlyNet={monthlyNet}
+                large={pos.large}
+              />
+            </motion.div>
+          );
+        })}
+      </motion.div>
 
-          <span className="inline-flex items-baseline gap-2 px-4 py-2 rounded-full bg-[#00d992]/15 border border-[#00d992]/30 text-[#00d992] text-sm font-bold w-fit">
-            <span className="text-[10px] uppercase tracking-wider text-[#00d992]/80">Total</span>
-            {allBanks.length} entidades
-          </span>
-        </motion.div>
+      {/* Mobile simple 2-col grid */}
+      <motion.div
+        className="grid md:hidden grid-cols-2 gap-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        {allBanks.map((bank, index) => {
+          const isLarge = positions[index]?.large ?? false;
+          const imgIdx = positions[index]?.imgIdx ?? 0;
+          const hero = bank.siteImages?.[imgIdx] ?? bank.siteImages?.[0] ?? bank.image;
+          const slug = encodeURIComponent(bank.name.toLowerCase().replace(/ /g, "-"));
+          const monthlyNet = calculateMonthlyNetRate(bank.tasaEA).toFixed(2);
 
-        {/* Grid */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {allBanks
-            .slice()
-            .sort((a, b) => b.tasaEA - a.tasaEA)
-            .map((bank) => (
-              <motion.div key={bank.id} variants={itemVariants}>
-                <Link
-                  href={`/bank/${encodeURIComponent(bank.name.toLowerCase().replace(/ /g, "-"))}`}
-                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-background/40 backdrop-blur-xl hover:border-[#00d992]/30 hover:bg-background/60 transition-all duration-200 shadow-lg h-full"
-                >
-                  {/* Ambient glow on hover */}
-                  <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[#00d992]/0 group-hover:bg-[#00d992]/10 blur-2xl transition-all duration-300 pointer-events-none" />
-
-                  {/* Top: logo + name */}
-                  <div className="flex items-center gap-3 p-4 pb-3">
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
-                      <Image
-                        src={bank.image}
-                        alt={bank.name}
-                        fill
-                        className="object-contain p-1"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-foreground font-semibold text-sm leading-tight truncate">
-                        {bank.name}
-                      </p>
-                      <p className="text-muted-foreground text-[10px] uppercase tracking-wider mt-0.5 truncate">
-                        {bank.type || "Entidad Financiera"}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="h-px bg-white/5 mx-4" />
-
-                  {/* Bottom: rates */}
-                  <div className="flex items-end justify-between p-4 pt-3 mt-auto">
-                    <div className="space-y-1.5">
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        Tasa EA
-                      </p>
-                      <p className="text-3xl font-black text-[#00d992] leading-none">
-                        {bank.tasaEA}%
-                      </p>
-                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-[#00d992]/20 bg-[#00d992]/10 text-[10px]">
-                        <span className="uppercase tracking-wide text-[#00d992]/70">
-                          Neto mes
-                        </span>
-                        <span className="font-semibold text-[#8bf5cf]">
-                          {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
-                        </span>
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      <div className="p-2 rounded-xl bg-[#00d992]/10 text-[#00d992] group-hover:bg-[#00d992] group-hover:text-black transition-all duration-200">
-                        <TrendingUp size={16} />
-                      </div>
-                      {bank.act && (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-green-500 font-medium">
-                          <CheckCircle2 size={10} />
-                          Actualizado
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-        </motion.div>
-      </div>
-
+          return (
+            <div
+              key={bank.id}
+              className={isLarge ? "col-span-2 h-[220px]" : "col-span-1 h-[160px]"}
+            >
+              <BentoCard
+                bank={bank}
+                hero={hero}
+                slug={slug}
+                monthlyNet={monthlyNet}
+                large={isLarge}
+              />
+            </div>
+          );
+        })}
+      </motion.div>
     </div>
+  );
+}
+
+interface BentoCardProps {
+  bank: { name: string; image: string; tasaEA: number; act?: boolean; type?: string };
+  hero: string;
+  slug: string;
+  monthlyNet: string;
+  large: boolean;
+}
+
+function BentoCard({ bank, hero, slug, monthlyNet, large }: BentoCardProps) {
+  return (
+    <Link
+      href={`/bank/${slug}`}
+      className="group relative block w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-lg hover:shadow-2xl hover:border-[#00d992]/40 transition-all duration-300"
+    >
+      {/* Hero image */}
+      <Image
+        src={hero}
+        alt={bank.name}
+        fill
+        unoptimized
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+      />
+
+      {/* Progressive blur */}
+      <ProgressiveBlur
+        position="bottom"
+        height={large ? "45%" : "65%"}
+        blurLevels={[0.5, 1, 2, 4, 8, 16, 32, 64]}
+      />
+
+      {/* Dark overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-10"
+        style={{
+          background:
+            "linear-gradient(to top, rgba(9,13,16,0.92) 0%, rgba(9,13,16,0.45) 30%, rgba(9,13,16,0) 60%)",
+        }}
+      />
+
+      {/* Content */}
+      <div className="absolute inset-0 z-20 flex flex-col justify-end p-3 gap-1.5">
+        <div className="flex items-center gap-2">
+          <div className="relative w-7 h-7 rounded-lg overflow-hidden bg-white/10 border border-white/20 shrink-0">
+            <Image src={bank.image} alt={bank.name} fill className="object-contain p-0.5" />
+          </div>
+          <div className="flex items-center gap-1 min-w-0">
+            <p className="text-white font-semibold text-xs leading-tight truncate drop-shadow">
+              {bank.name}
+            </p>
+            {bank.act && <CheckCircle2 className="w-3 h-3 text-[#00d992] shrink-0" />}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-baseline gap-1 px-2 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
+            <span className={`text-[#00d992] font-black leading-none ${large ? "text-2xl" : "text-sm"}`}>
+              {bank.tasaEA}%
+            </span>
+            <span className="text-white/60 text-[9px] uppercase tracking-wider">EA</span>
+          </div>
+          <div className="flex items-baseline gap-1 px-2 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15">
+            <span className="text-[#8bf5cf] font-bold text-xs leading-none">{monthlyNet}%</span>
+            <span className="text-white/60 text-[9px] uppercase tracking-wider">mes</span>
+          </div>
+        </div>
+      </div>
+    </Link>
   );
 }
