@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import CurrencyInput from "react-currency-input-field";
 import Navbar from "../_components/core/Header";
 import { Footer } from "../_components/core/Footer";
@@ -9,7 +10,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Info, Landmark, TrendingUp, Wallet, PieChart as PieChartIcon } from "lucide-react";
 import { calculateCDTReturns, formatCurrency } from "@/lib/finance-utils";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Banks } from "../_DATA/Banks";
 import Image from "next/image";
@@ -21,8 +21,6 @@ import {
     CartesianGrid,
     XAxis,
     YAxis,
-    Tooltip,
-    ResponsiveContainer,
     Pie,
     PieChart,
     Cell
@@ -36,9 +34,10 @@ import {
 
 export default function CDTCalculator() {
     const id = useId();
+    const searchParams = useSearchParams();
     const [amount, setAmount] = useState("5000000");
-    const [months, setMonths] = useState("6");
-    const [rate, setRate] = useState("12");
+    const [months, setMonths] = useState(() => searchParams.get("months") ?? "6");
+    const [rate, setRate] = useState(() => searchParams.get("rate") ?? "12");
     const [results, setResults] = useState<any>(null);
     const [chartData, setChartData] = useState<any[]>([]);
     const [pieData, setPieData] = useState<any[]>([]);
@@ -138,202 +137,153 @@ export default function CDTCalculator() {
                 </div>
             </section>
 
-            <section className="grid gap-6 md:grid-cols-2 w-full px-4 xl:px-28">
-                {/* Panel de Entradas */}
-                <Card className="bg-neutral-900 border-neutral-800 border-2">
-                    <CardHeader>
-                        <CardTitle className="text-xl flex items-center gap-2">
-                            <Wallet className="text-[#00d992]" size={20} />
-                            Datos de Inversión
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-2">
-                            <Label className="text-md font-semibold">Monto a Invertir</Label>
-                            <CurrencyInput
-                                prefix="$"
-                                value={amount}
-                                onValueChange={(value) => setAmount(value ?? "")}
-                                intlConfig={{ locale: "es-CO", currency: "COP" }}
-                                className="w-full p-3 rounded-lg bg-[#090d10] font-semibold text-white focus:ring-2 focus:ring-emerald-500 outline-none border border-neutral-800"
-                            />
-                        </div>
+            <section className="w-full px-4 xl:px-28">
+                <div className="relative overflow-hidden rounded-3xl border border-border">
+                    {/* Liquid glass ambient background */}
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] rounded-full bg-[#00d992]/15 blur-3xl" />
+                        <div className="absolute -bottom-40 -right-32 w-[28rem] h-[28rem] rounded-full bg-[#00d992]/10 blur-3xl" />
+                        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
+                    </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                    <div className="relative grid gap-4 p-3 md:p-5 lg:grid-cols-2">
+                        {/* INPUTS PANEL */}
+                        <div className="bg-background/40 backdrop-blur-xl border border-white/5 rounded-2xl p-5 md:p-7 flex flex-col gap-5 shadow-lg">
+                            <div className="flex items-center gap-2">
+                                <Wallet className="text-[#00d992]" size={18} />
+                                <h2 className="text-lg font-semibold tracking-tight">Datos de Inversión</h2>
+                            </div>
+
                             <div className="space-y-2">
-                                <Label className="text-md font-semibold">Plazo (Meses)</Label>
-                                <Input
-                                    type="number"
-                                    value={months}
-                                    onChange={(e) => setMonths(e.target.value)}
-                                    className="bg-[#090d10] border-neutral-800 py-6"
+                                <Label className="text-sm font-semibold">Monto a Invertir</Label>
+                                <CurrencyInput
+                                    prefix="$"
+                                    value={amount}
+                                    onValueChange={(value) => setAmount(value ?? "")}
+                                    intlConfig={{ locale: "es-CO", currency: "COP" }}
+                                    className="w-full p-3 rounded-xl bg-background/60 backdrop-blur-sm border border-white/5 font-semibold text-foreground focus:ring-2 focus:ring-[#00d992]/40 outline-none transition-all"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-md font-semibold">Tasa EA (%)</Label>
-                                <Input
-                                    type="number"
-                                    step="0.1"
-                                    value={rate}
-                                    onChange={(e) => setRate(e.target.value)}
-                                    className="bg-[#090d10] border-neutral-800 py-6"
-                                />
-                            </div>
-                        </div>
 
-                        <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg flex gap-3 text-sm text-blue-200">
-                            <Info className="shrink-0" size={18} />
-                            <p>
-                                Los CDT en Colombia aplican una Retención en la Fuente fija del 4% sobre los intereses ganados.
-                            </p>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Panel de Resultados */}
-                <div className="space-y-6">
-                    {results ? (
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="space-y-6"
-                        >
-                            <Card className="bg-[#090d10] border-[#00d992]/30 border-2 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 p-4 opacity-10">
-                                    <TrendingUp size={80} />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">Plazo (Meses)</Label>
+                                    <Input
+                                        type="number"
+                                        value={months}
+                                        onChange={(e) => setMonths(e.target.value)}
+                                        className="bg-background/60 backdrop-blur-sm border-white/5 rounded-xl py-6 focus:ring-2 focus:ring-[#00d992]/40"
+                                    />
                                 </div>
-                                <CardHeader>
-                                    <CardTitle className="text-neutral-400 text-sm font-medium uppercase tracking-wider">
-                                        Valor Final Neto
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="text-4xl md:text-5xl font-black text-[#00d992]">
-                                        {formatCurrency(results.finalAmount)}
-                                    </div>
-                                    <Badge variant="outline" className="mt-4 border-[#00d992] text-[#00d992]">
-                                        Rendimiento Estimado
-                                    </Badge>
-                                </CardContent>
-                            </Card>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Card className="bg-neutral-900 border-neutral-800">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="text-neutral-400 text-xs uppercase">Interés Bruto</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-xl font-bold">{formatCurrency(results.interests)}</div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="bg-neutral-900 border-neutral-800">
-                                    <CardHeader className="pb-2">
-                                        <CardTitle className="text-red-400 text-xs uppercase">Retención (4%)</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="text-xl font-bold">- {formatCurrency(results.retention)}</div>
-                                    </CardContent>
-                                </Card>
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-semibold">Tasa EA (%)</Label>
+                                    <Input
+                                        type="number"
+                                        step="0.1"
+                                        value={rate}
+                                        onChange={(e) => setRate(e.target.value)}
+                                        className="bg-background/60 backdrop-blur-sm border-white/5 rounded-xl py-6 focus:ring-2 focus:ring-[#00d992]/40"
+                                    />
+                                </div>
                             </div>
 
-                            <Card className="bg-neutral-900 border-neutral-800">
-                                <CardContent className="pt-6">
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <Landmark className="text-neutral-500" size={18} />
-                                            <span className="text-neutral-400">Rendimiento Mensual Promedio</span>
-                                        </div>
-                                        <span className="text-lg font-bold text-[#00d992]">
-                                            {formatCurrency(results.interestsMonthly - results.retentionMonthly)}
+                            <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 backdrop-blur-sm px-4 py-3 flex gap-3 text-sm">
+                                <Info className="shrink-0 text-blue-400 mt-0.5" size={16} />
+                                <p className="text-muted-foreground">
+                                    Los CDT en Colombia aplican una Retención en la Fuente fija del <span className="text-foreground font-medium">4%</span> sobre los intereses ganados.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* RESULTS PANEL */}
+                        <div className="flex flex-col gap-4 self-start">
+                            {results && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="flex flex-col gap-4"
+                                >
+                                    {/* Hero result */}
+                                    <div className="relative overflow-hidden rounded-2xl border border-[#00d992]/20 bg-background/40 backdrop-blur-xl shadow-lg p-6">
+                                        <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#00d992]/10 blur-2xl pointer-events-none" />
+                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                                            Valor Final Neto
+                                        </p>
+                                        <p className="text-4xl md:text-5xl font-black text-[#00d992] tracking-tight">
+                                            {formatCurrency(results.finalAmount)}
+                                        </p>
+                                        <span className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full bg-[#00d992]/15 border border-[#00d992]/30 text-[10px] text-[#00d992] font-semibold uppercase tracking-wider">
+                                            Rendimiento estimado
                                         </span>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    ) : null}
 
-                    {/* Gráfico de Crecimiento */}
-                    {chartData.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                        >
-                            <Card className="bg-neutral-900 border-neutral-800">
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <TrendingUp className="text-[#00d992]" size={18} />
-                                        Proyección de Crecimiento
-                                    </CardTitle>
-                                    <CardDescription>Visualiza cómo crece tu dinero mes a mes</CardDescription>
-                                </CardHeader>
-                                <CardContent className="px-2">
-                                    <ChartContainer config={chartConfig} className="h-[250px] w-full">
-                                        <AreaChart
-                                            data={chartData}
-                                            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                                        >
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" />
-                                            <XAxis
-                                                dataKey="month"
-                                                axisLine={false}
-                                                tickLine={false}
-                                                tick={{ fill: '#888' }}
-                                                interval={Math.floor(chartData.length / 5)}
-                                            />
-                                            <YAxis
-                                                hide
-                                                domain={['dataMin - 10000', 'auto']}
-                                            />
-                                            <ChartTooltip content={<ChartTooltipContent />} />
-                                            <Area
-                                                type="monotone"
-                                                dataKey="balance"
-                                                stroke="#00d992"
-                                                strokeWidth={2}
-                                                fillOpacity={1}
-                                                fill="url(#colorBalance)"
-                                            />
-                                            <defs>
-                                                <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="5%" stopColor="#00d992" stopOpacity={0.3} />
-                                                    <stop offset="95%" stopColor="#00d992" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                        </AreaChart>
-                                    </ChartContainer>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    )}
+                                    {/* Stats row */}
+                                    <div className="grid grid-cols-3 divide-x divide-border/50 rounded-2xl border border-white/5 bg-background/40 backdrop-blur-sm overflow-hidden">
+                                        <div className="flex flex-col items-center justify-center px-3 py-4 text-center">
+                                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Interés bruto</span>
+                                            <span className="text-sm font-semibold text-foreground mt-1.5 line-clamp-1">{formatCurrency(results.interests)}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center px-3 py-4 text-center">
+                                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Retención 4%</span>
+                                            <span className="text-sm font-semibold text-red-400 mt-1.5 line-clamp-1">-{formatCurrency(results.retention)}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center justify-center px-3 py-4 text-center">
+                                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Mensual neto</span>
+                                            <span className="text-sm font-semibold text-[#00d992] mt-1.5 line-clamp-1">{formatCurrency(results.interestsMonthly - results.retentionMonthly)}</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
 
-                    {/* Gráfico de Desglose */}
-                    {pieData.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            <Card className="bg-neutral-900 border-neutral-800">
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <PieChartIcon className="text-[#00d992]" size={18} />
-                                        Composición de la Inversión
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                            {/* Gráfico de Crecimiento */}
+                            {chartData.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.2 }}
+                                    className="relative overflow-hidden rounded-2xl border border-white/5 bg-background/40 backdrop-blur-xl shadow-lg"
+                                >
+                                    <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-[#00d992]/10 blur-2xl pointer-events-none" />
+                                    <div className="relative p-5">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <TrendingUp className="text-[#00d992]" size={16} />
+                                            <h3 className="text-sm font-semibold">Proyección de Crecimiento</h3>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mb-4">Visualiza cómo crece tu dinero mes a mes</p>
+                                        <ChartContainer config={chartConfig} className="h-[220px] w-full">
+                                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#666" }} interval={Math.floor(chartData.length / 5)} />
+                                                <YAxis hide domain={["dataMin - 10000", "auto"]} />
+                                                <ChartTooltip content={<ChartTooltipContent />} />
+                                                <Area type="monotone" dataKey="balance" stroke="#00d992" strokeWidth={2} fillOpacity={1} fill="url(#colorBalance)" />
+                                                <defs>
+                                                    <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="5%" stopColor="#00d992" stopOpacity={0.25} />
+                                                        <stop offset="95%" stopColor="#00d992" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                            </AreaChart>
+                                        </ChartContainer>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {/* Gráfico de Desglose */}
+                            {pieData.length > 0 && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="relative overflow-hidden rounded-2xl border border-white/5 bg-background/40 backdrop-blur-xl shadow-lg p-5"
+                                >
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <PieChartIcon className="text-[#00d992]" size={16} />
+                                        <h3 className="text-sm font-semibold">Composición de la Inversión</h3>
+                                    </div>
+                                    <ChartContainer config={chartConfig} className="h-[180px] w-full">
                                         <PieChart>
-                                            <Pie
-                                                data={pieData}
-                                                dataKey="value"
-                                                nameKey="name"
-                                                cx="50%"
-                                                cy="50%"
-                                                innerRadius={60}
-                                                outerRadius={80}
-                                                paddingAngle={5}
-                                            >
+                                            <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={75} paddingAngle={4}>
                                                 {pieData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.fill} />
                                                 ))}
@@ -341,25 +291,24 @@ export default function CDTCalculator() {
                                             <ChartTooltip content={<ChartTooltipContent />} />
                                         </PieChart>
                                     </ChartContainer>
-                                    <div className="flex justify-center gap-6 mt-4">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-white" />
-                                            <span className="text-xs text-neutral-400">Capital</span>
+                                    <div className="flex justify-center gap-6 mt-2">
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                                            <span className="text-xs text-muted-foreground">Capital</span>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-[#00d992]" />
-                                            <span className="text-xs text-neutral-400">Interés</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-[#00d992]" />
+                                            <span className="text-xs text-muted-foreground">Interés</span>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-3 h-3 rounded-full bg-red-500" />
-                                            <span className="text-xs text-neutral-400">Retención</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                                            <span className="text-xs text-muted-foreground">Retención</span>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    )}
-
+                                </motion.div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </section>
 

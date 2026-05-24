@@ -6,130 +6,132 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "../_components/core/Header";
 import { Footer } from "../_components/core/Footer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Landmark, TrendingUp, ChevronLeft } from "lucide-react";
+import { ArrowLeft, CheckCircle2, TrendingUp } from "lucide-react";
 import { calculateMonthlyNetRate } from "@/lib/finance-utils";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
 
 export default function BanksPage() {
   const allBanks = [...Banks, ...DepositosBajoMonto];
 
-  // Container animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  // Item animation variants
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.22, 1, 0.36, 1], // Apple-like easing
-      },
-    },
-  };
-
   return (
-    <div className="min-h-screen text-white flex flex-col items-center space-y-12">
+    <div className="min-h-screen text-white flex flex-col items-center space-y-10">
       <Navbar />
 
-      <div className="w-full px-4 xl:px-28 space-y-8 mt-8">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
+      <div className="w-full px-4 xl:px-28 space-y-8">
+        {/* Header */}
+        <motion.div
+          className="flex flex-col md:flex-row md:items-end justify-between gap-4"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="space-y-3">
             <Link
               href="/"
-              className="text-neutral-400 hover:text-[#00d992] text-sm font-medium transition-colors flex items-center gap-1 w-fit"
+              className="inline-flex items-center gap-2 px-3 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all text-sm text-foreground w-fit"
             >
-              <ChevronLeft size={16} />
-              Regresar al inicio
+              <ArrowLeft className="w-4 h-4" />
+              Inicio
             </Link>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#00d992]">
+            <h1 className="text-3xl md:text-4xl font-bold text-[#00d992] tracking-tight">
               Entidades Financieras
             </h1>
-            <p className="text-neutral-400">
-              Explora y compara las mejores tasas de interés en el mercado financiero colombiano.
+            <p className="text-muted-foreground text-sm">
+              Explora y compara las mejores tasas de interés en Colombia.
             </p>
           </div>
 
-          <Badge variant="outline" className="w-fit h-fit py-2 px-4 border-[#00d992]/30 text-[#00d992] bg-[#00d992]/5">
-            {allBanks.length} Entidades registradas
-          </Badge>
-        </div>
+          <span className="inline-flex items-baseline gap-2 px-4 py-2 rounded-full bg-[#00d992]/15 border border-[#00d992]/30 text-[#00d992] text-sm font-bold w-fit">
+            <span className="text-[10px] uppercase tracking-wider text-[#00d992]/80">Total</span>
+            {allBanks.length} entidades
+          </span>
+        </motion.div>
 
-        {/* List Grid */}
+        {/* Grid */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {allBanks.map((bank, index) => (
-            <motion.div
-              key={bank.id}
-              variants={itemVariants}
-            >
-              <Link href={`/bank/${bank.name.toLowerCase()}`}>
-                <Card className="bg-[#090d10] border-neutral-800 hover:border-[#00d992]/50 transition-all hover:scale-[1.02] duration-200 group overflow-hidden h-full flex flex-col">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <Landmark size={60} />
-                  </div>
+          {allBanks
+            .slice()
+            .sort((a, b) => b.tasaEA - a.tasaEA)
+            .map((bank) => (
+              <motion.div key={bank.id} variants={itemVariants}>
+                <Link
+                  href={`/bank/${encodeURIComponent(bank.name.toLowerCase().replace(/ /g, "-"))}`}
+                  className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-background/40 backdrop-blur-xl hover:border-[#00d992]/30 hover:bg-background/60 transition-all duration-200 shadow-lg h-full"
+                >
+                  {/* Ambient glow on hover */}
+                  <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[#00d992]/0 group-hover:bg-[#00d992]/10 blur-2xl transition-all duration-300 pointer-events-none" />
 
-                  <CardHeader className="flex flex-row items-center gap-4">
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white/5 p-1 shrink-0">
+                  {/* Top: logo + name */}
+                  <div className="flex items-center gap-3 p-4 pb-3">
+                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
                       <Image
                         src={bank.image}
                         alt={bank.name}
                         fill
-                        className="object-contain"
+                        className="object-contain p-1"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg">{bank.name}</CardTitle>
-                      <CardDescription className="text-xs uppercase tracking-wider">
+                    <div className="min-w-0">
+                      <p className="text-foreground font-semibold text-sm leading-tight truncate">
+                        {bank.name}
+                      </p>
+                      <p className="text-muted-foreground text-[10px] uppercase tracking-wider mt-0.5 truncate">
                         {bank.type || "Entidad Financiera"}
-                      </CardDescription>
+                      </p>
                     </div>
-                  </CardHeader>
+                  </div>
 
-                  <CardContent className="mt-auto pt-4 border-t border-neutral-800/50">
-                    <div className="flex justify-between items-end">
-                      <div className="space-y-1">
-                        <p className="text-neutral-500 text-[10px] font-bold uppercase">Tasa Efectiva Anual</p>
-                        <div className={`text-3xl font-black ${bank.act ? 'text-[#00d992]' : 'text-neutral-300'}`}>
-                          {bank.tasaEA}%
-                        </div>
-                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-neutral-700 bg-neutral-900/80 text-[10px] text-neutral-300">
-                          <span className="uppercase tracking-wide text-neutral-400">Neto mes</span>
-                          <span className="font-semibold text-[#8bf5cf]">
-                            {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
-                          </span>
-                        </div>
-                      </div>
-                      <div className={`p-2 rounded-lg transition-colors mb-1 ${bank.act ? 'bg-[#00d992]/10 text-[#00d992] group-hover:bg-[#00d992] group-hover:text-black' : 'bg-neutral-800 text-neutral-500 group-hover:bg-neutral-700'}`}>
-                        <TrendingUp size={18} />
-                      </div>
+                  {/* Divider */}
+                  <div className="h-px bg-white/5 mx-4" />
+
+                  {/* Bottom: rates */}
+                  <div className="flex items-end justify-between p-4 pt-3 mt-auto">
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Tasa EA
+                      </p>
+                      <p className="text-3xl font-black text-[#00d992] leading-none">
+                        {bank.tasaEA}%
+                      </p>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-[#00d992]/20 bg-[#00d992]/10 text-[10px]">
+                        <span className="uppercase tracking-wide text-[#00d992]/70">
+                          Neto mes
+                        </span>
+                        <span className="font-semibold text-[#8bf5cf]">
+                          {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
+                        </span>
+                      </span>
                     </div>
-                    {bank.act && (
-                      <div className="mt-3 flex items-center gap-1.5 text-[#00d992] text-[10px] font-bold uppercase tracking-widest">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#00d992] animate-pulse" />
-                        Actualizado
+
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="p-2 rounded-xl bg-[#00d992]/10 text-[#00d992] group-hover:bg-[#00d992] group-hover:text-black transition-all duration-200">
+                        <TrendingUp size={16} />
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
+                      {bank.act && (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-green-500 font-medium">
+                          <CheckCircle2 size={10} />
+                          Actualizado
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
         </motion.div>
       </div>
 

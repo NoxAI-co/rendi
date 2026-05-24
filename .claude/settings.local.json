@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node \"c:/Users/santi/OneDrive2/Documentos/Proyectos de desarrollo/elmony/scripts/generate-last-update.mjs\")"
+      "Bash(node \"c:/Users/santi/OneDrive2/Documentos/Proyectos de desarrollo/elmony/scripts/generate-last-update.mjs\")",
+      "Bash(node -e \"const AutoScroll = require\\('embla-carousel-auto-scroll'\\); console.log\\(Object.keys\\(AutoScroll\\)\\)\")"
     ]
   }
 }

@@ -4,103 +4,120 @@ import React from "react";
 import Navbar from "../../_components/core/Header";
 import { Footer } from "../../_components/core/Footer";
 import { Banks } from "../../_DATA/Banks";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, TrendingUp, Landmark } from "lucide-react";
+import { ArrowLeft, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.07 } },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
+
 export default function CDTList() {
-    // Flatten all CDT options from all banks
-    const allCDTs = Banks.flatMap(bank =>
-        (bank.cdtOptions || []).map(option => ({
-            bank,
-            option
-        }))
-    ).sort((a, b) => b.option.rate - a.option.rate); // Sort by rate descending
+    const allCDTs = Banks.flatMap((bank) =>
+        (bank.cdtOptions || []).map((option) => ({ bank, option }))
+    ).sort((a, b) => b.option.rate - a.option.rate);
 
     return (
-        <div className="min-h-screen text-white flex flex-col items-center space-y-12">
+        <div className="min-h-screen text-white flex flex-col items-center space-y-10">
             <Navbar />
 
-            <div className="w-full px-4 xl:px-28 space-y-8 mt-8">
-                {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="space-y-2">
+            <div className="w-full px-4 xl:px-28 space-y-8">
+                {/* Header */}
+                <motion.div
+                    className="flex flex-col md:flex-row md:items-end justify-between gap-4"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <div className="space-y-3">
                         <Link
                             href="/cdt"
-                            className="text-neutral-400 hover:text-[#00d992] text-sm font-medium transition-colors flex items-center gap-1 w-fit"
+                            className="inline-flex items-center gap-2 px-3 h-9 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all text-sm text-foreground w-fit"
                         >
-                            <ChevronLeft size={16} />
-                            Regresar a la calculadora
+                            <ArrowLeft className="w-4 h-4" />
+                            Calculadora CDT
                         </Link>
-                        <h1 className="text-3xl md:text-4xl font-bold text-[#00d992]">
-                            Todos los CDTs Registrados
+                        <h1 className="text-3xl md:text-4xl font-bold text-[#00d992] tracking-tight">
+                            Todos los CDTs
                         </h1>
-                        <p className="text-neutral-400">
+                        <p className="text-muted-foreground text-sm">
                             Explora y compara todas las opciones de inversión a término fijo disponibles.
                         </p>
                     </div>
 
-                    <Badge variant="outline" className="w-fit h-fit py-2 px-4 border-[#00d992]/30 text-[#00d992] bg-[#00d992]/5">
-                        {allCDTs.length} Opciones encontradas
-                    </Badge>
-                </div>
+                    <span className="inline-flex items-baseline gap-2 px-4 py-2 rounded-full bg-[#00d992]/15 border border-[#00d992]/30 text-[#00d992] text-sm font-bold w-fit">
+                        <span className="text-[10px] uppercase tracking-wider text-[#00d992]/80">Total</span>
+                        {allCDTs.length} opciones
+                    </span>
+                </motion.div>
 
-                {/* List Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {/* Grid */}
+                <motion.div
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     {allCDTs.map((item, index) => (
-                        <motion.div
-                            key={`${item.bank.id}-${index}`}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                        >
-                            <Link href="/cdt">
-                                <Card className="bg-[#090d10] border-neutral-800 hover:border-[#00d992]/50 transition-all hover:scale-[1.02] duration-200 group overflow-hidden h-full flex flex-col">
-                                    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                                        <Landmark size={60} />
+                        <motion.div key={`${item.bank.id}-${index}`} variants={itemVariants}>
+                            <Link
+                                href={`/bank/${encodeURIComponent(item.bank.name.toLowerCase().replace(/ /g, "-"))}`}
+                                className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/5 bg-background/40 backdrop-blur-xl hover:border-[#00d992]/30 hover:bg-background/60 transition-all duration-200 shadow-lg h-full"
+                            >
+                                {/* Ambient glow on hover */}
+                                <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-[#00d992]/0 group-hover:bg-[#00d992]/10 blur-2xl transition-all duration-300 pointer-events-none" />
+
+                                {/* Top: logo + name */}
+                                <div className="flex items-center gap-3 p-4 pb-3">
+                                    <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/10 shrink-0">
+                                        <Image
+                                            src={item.bank.image}
+                                            alt={item.bank.name}
+                                            fill
+                                            className="object-contain p-1"
+                                        />
                                     </div>
+                                    <div className="min-w-0">
+                                        <p className="text-foreground font-semibold text-sm leading-tight truncate">
+                                            {item.bank.name}
+                                        </p>
+                                        <p className="text-muted-foreground text-[10px] uppercase tracking-wider mt-0.5">
+                                            {item.option.months} {item.option.months === 1 ? "mes" : "meses"}
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    <CardHeader className="flex flex-row items-center gap-4">
-                                        <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white/5 p-1 shrink-0">
-                                            <Image
-                                                src={item.bank.image}
-                                                alt={item.bank.name}
-                                                fill
-                                                className="object-contain"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <CardTitle className="text-lg">{item.bank.name}</CardTitle>
-                                            <CardDescription className="text-xs uppercase tracking-wider">
-                                                {item.option.months} MESES
-                                            </CardDescription>
-                                        </div>
-                                    </CardHeader>
+                                {/* Divider */}
+                                <div className="h-px bg-white/5 mx-4" />
 
-                                    <CardContent className="mt-auto pt-4 border-t border-neutral-800/50">
-                                        <div className="flex justify-between items-end">
-                                            <div className="space-y-1">
-                                                <p className="text-neutral-500 text-[10px] font-bold uppercase">Tasa Efectiva Anual</p>
-                                                <div className="text-3xl font-black text-[#00d992]">
-                                                    {item.option.rate}%
-                                                </div>
-                                            </div>
-                                            <div className="bg-[#00d992]/10 text-[#00d992] p-2 rounded-lg group-hover:bg-[#00d992] group-hover:text-black transition-colors mb-1">
-                                                <TrendingUp size={18} />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                {/* Bottom: rate */}
+                                <div className="flex items-end justify-between p-4 pt-3 mt-auto">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                            Tasa EA
+                                        </p>
+                                        <p className="text-3xl font-black text-[#00d992] leading-none">
+                                            {item.option.rate}%
+                                        </p>
+                                    </div>
+                                    <div className="p-2 rounded-xl bg-[#00d992]/10 text-[#00d992] group-hover:bg-[#00d992] group-hover:text-black transition-all duration-200 mb-1">
+                                        <TrendingUp size={16} />
+                                    </div>
+                                </div>
                             </Link>
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
 
-            <Footer />
+   
         </div>
     );
 }

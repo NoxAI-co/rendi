@@ -6,6 +6,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { calculateMonthlyNetRate } from "@/lib/finance-utils";
+import { ArrowLeft, CheckCircle2, ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
+import AutoScroll from "embla-carousel-auto-scroll";
+import { useCallback } from "react";
 
 interface CardBankProps {
   slug: string;
@@ -13,13 +17,17 @@ interface CardBankProps {
 
 export const DetailedCardBank = ({ slug }: CardBankProps) => {
   const allBanks = [...Banks, ...DepositosBajoMonto];
-
-  // Find the bank that matches the normalized slug
   const bank = allBanks.find((bank) => bank.name.toLowerCase() === slug);
 
   const router = useRouter();
 
-  // Add this check
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" }, [
+    AutoScroll({ startDelay: 1000, stopOnInteraction: false, stopOnMouseEnter: true }),
+  ]);
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
   if (!bank) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
@@ -32,179 +40,207 @@ export const DetailedCardBank = ({ slug }: CardBankProps) => {
     );
   }
 
+  const monthlyNet = calculateMonthlyNetRate(bank.tasaEA).toFixed(2);
+  const heroImage = bank.siteImages?.[0];
+  const screenshots = bank.siteImages ?? [];
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen w-full p-4">
+    <div className="min-h-screen w-full px-4 py-8 lg:py-12">
       <motion.div
-        className="absolute top-8 left-8"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
+        className="max-w-5xl mx-auto mb-6 flex items-center justify-between gap-3"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex items-center justify-center w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm shadow-md border border-border hover:bg-background/90 transition-all"
+          className="flex items-center gap-2 px-3 h-10 rounded-full bg-background/80 backdrop-blur-sm shadow-md border border-border hover:bg-background transition-all text-sm text-foreground"
         >
-          <svg
-            className="w-5 h-5 text-foreground"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            ></path>
-          </svg>
+          <ArrowLeft className="w-4 h-4" />
+          Volver
         </button>
+        {bank.website && (
+          <a
+            href={bank.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-4 h-10 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all shadow-md"
+          >
+            Visitar sitio
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        )}
       </motion.div>
 
-      <motion.div
-        className="max-w-md w-full  rounded-2xl shadow-lg overflow-hidden border border-border"
+      {/* HERO — App Store style */}
+      <motion.section
+        className="max-w-5xl mx-auto relative overflow-hidden rounded-3xl border border-border"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{
-          duration: 0.7,
-          ease: [0.22, 1, 0.36, 1], // Custom cubic bezier for Apple-like feel
-          delay: 0.1,
-        }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
       >
-        {/* Header with dark gradient */}
-        <div className="relative h-48 backdrop-blur-md bg-white/50 dark:bg-black/30 ">
-          <motion.div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0">
+          {heroImage ? (
             <Image
-              src={bank.image}
-              alt={bank.name}
-              width={100}
-              height={100}
-              className="rounded-lg object-cover shadow-md"
+              src={heroImage}
+              alt=""
+              fill
+              aria-hidden="true"
+              className="object-cover scale-110 blur-md opacity-80"
+              priority
             />
-          </motion.div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-primary/10 to-transparent" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/50 to-background" />
         </div>
 
-        {/* Content */}
-        <motion.div
-          className="backdrop-blur-md p-6 bg-background/100"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          {/* Title section */}
-          <motion.div
-            className="flex flex-col items-center mb-6"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          >
-            <h1 className="text-2xl font-semibold text-foreground">
+        <div className="relative flex flex-col md:flex-row items-center md:items-end gap-6 p-8 md:p-12 min-h-[260px] md:min-h-[300px]">
+          <Image
+            src={bank.image}
+            alt={bank.name}
+            width={140}
+            height={140}
+            className="rounded-3xl object-cover shadow-2xl border border-white/10 shrink-0"
+          />
+          <div className="flex flex-col items-center md:items-start gap-2 text-center md:text-left flex-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
               {bank.name}
             </h1>
-            {bank.type && (
-              <span className="text-sm text-muted-foreground mt-1">
-                {bank.type}
-              </span>
-            )}
-          </motion.div>
-
-          {/* Rate card - highlighted like featured content */}
-          <motion.div
-            className="bg-primary/10 rounded-xl p-5 mb-6"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            whileHover={{
-              scale: 1.02,
-              backgroundColor: "rgba(var(--primary), 0.15)",
-            }}
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-muted-foreground">Tasa EA</span>
-              <div className="flex flex-col items-end">
-                <motion.span
-                  className="text-3xl font-bold text-primary"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 0.7 }}
-                >
-                  {bank.tasaEA}%
-                </motion.span>
-                <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-primary/20 bg-primary/10 text-[10px] text-primary/90 mt-2">
-                  <span className="uppercase tracking-wide text-primary/70">Neto mes</span>
-                  <span className="font-semibold">
-                    {calculateMonthlyNetRate(bank.tasaEA).toFixed(2)}%
-                  </span>
+            <p className="text-muted-foreground text-base">
+              {bank.type ?? "Cuenta de ahorros"}
+            </p>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-3">
+              {bank.act && (
+                <span className="inline-flex items-center gap-1.5 text-xs text-green-500">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Actualizado
                 </span>
-                {bank.act && (
-                  <motion.span
-                    className="text-xs text-green-500 flex items-center mt-1"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.8 }}
-                  >
-                    <svg
-                      className="w-3 h-3 mr-1"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clipRule="evenodd"
-                      ></path>
-                    </svg>
-                    Actualizado
-                  </motion.span>
-                )}
-              </div>
+              )}
             </div>
-          </motion.div>
+          </div>
+        </div>
+      </motion.section>
 
-          {/* Information list with iOS-style separators */}
-          <motion.div
-            className="rounded-xl overflow-hidden border border-border"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-            whileHover={{ boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}
-          >
-            <motion.div
-              className="flex justify-between items-center p-4 bg-card"
-              whileHover={{ backgroundColor: "rgba(var(--card), 0.8)" }}
-              transition={{ duration: 0.2 }}
-            >
-              <span className="text-muted-foreground">ID Interno</span>
-              <span className="font-medium text-foreground">{bank.id}</span>
-            </motion.div>
-            <div className="h-px bg-border"></div>
-            <motion.div
-              className="flex justify-between items-center p-4 bg-card"
-              whileHover={{ backgroundColor: "rgba(var(--card), 0.8)" }}
-              transition={{ duration: 0.2 }}
-            >
-              <span className="text-muted-foreground">Tipo de producto</span>
-              <span className="font-medium text-foreground">
-                {bank.type || "Sin definir"}
-              </span>
-            </motion.div>
-          </motion.div>
+      {/* STATS — App Store metadata row */}
+      <motion.section
+        className="max-w-5xl mx-auto mt-6 grid grid-cols-1 md:grid-cols-3 md:divide-x divide-border rounded-2xl border border-border bg-card overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        <StatItem label="Tasa EA" value={`${bank.tasaEA}%`} />
+        <StatItem label="Neto mensual" value={`${monthlyNet}%`} />
+        <StatItem label="Tipo" value={bank.type ?? "—"} />
+      </motion.section>
 
-          {/* Footer note */}
-          <motion.p
-            className="text-xs text-muted-foreground text-center mt-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.9 }}
-          >
-            Esta información corresponde a las tasas vigentes al momento de la
-            consulta.
-          </motion.p>
+      {/* SCREENSHOTS — auto-scroll carousel */}
+      {screenshots.length > 0 && (
+        <motion.section
+          className="max-w-5xl mx-auto mt-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-foreground">Vista previa</h2>
+            {screenshots.length > 1 && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={scrollPrev}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all text-foreground"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={scrollNext}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background transition-all text-foreground"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+            <div className="flex gap-4">
+              {screenshots.map((src, i) => (
+                <div
+                  key={i}
+                  className="relative shrink-0 w-[320px] md:w-[380px] aspect-[16/10] rounded-2xl overflow-hidden border border-border shadow-lg bg-card"
+                >
+                  <Image
+                    src={src}
+                    alt={`${bank.name} captura ${i + 1}`}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                    sizes="(min-width: 768px) 380px, 320px"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
 
-        </motion.div>
-      </motion.div>
+      {/* CDT OPTIONS */}
+      {bank.cdtOptions && bank.cdtOptions.length > 0 && (
+        <motion.section
+          className="max-w-5xl mx-auto mt-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <h2 className="text-lg font-semibold mb-4 text-foreground">
+            CDTs disponibles
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {bank.cdtOptions.map((cdt, i) => (
+              <Link
+                key={i}
+                href={`/cdt?rate=${cdt.rate}&months=${cdt.months}`}
+                className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border border-white/5 bg-background/40 backdrop-blur-xl text-center hover:border-[#00d992]/30 hover:bg-background/60 transition-all group"
+              >
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {cdt.months} {cdt.months === 1 ? "mes" : "meses"}
+                </span>
+                <span className="text-3xl font-black text-[#00d992] leading-none">
+                  {cdt.rate}%
+                </span>
+                <span className="text-[10px] text-muted-foreground group-hover:text-[#00d992]/70 transition-colors">
+                  Calcular →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </motion.section>
+      )}
+
+      <motion.p
+        className="max-w-5xl mx-auto text-xs text-muted-foreground text-center mt-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.9 }}
+      >
+        Esta información corresponde a las tasas vigentes al momento de la
+        consulta.
+      </motion.p>
     </div>
   );
 };
+
+function StatItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center px-4 py-5 text-center border-t border-border first:border-t-0 md:border-t-0">
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-sm md:text-base font-semibold text-foreground mt-1.5 line-clamp-1">
+        {value}
+      </span>
+    </div>
+  );
+}

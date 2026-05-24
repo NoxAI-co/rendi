@@ -59,11 +59,9 @@ export const DialogDetails = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <span className="bg-[#122322] flex relative gap-1 items-center justify-center text-sm w-full text-[#00d992] px-4 py-2 rounded-m font-bold text-center self-start md:self-auto cursor-pointer hover:opacity-70 transition-all duration-100">
-          {/* <Badge className="rounded absolute -bottom-4  w-fit bg-[#090d10] text-white borde border-emerald-500 ">
-            Nuevo
-          </Badge> */}
-          <EyeIcon className="size-5" /> Detalles
+        <span className="w-full inline-flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-[#00d992]/15 border border-[#00d992]/30 text-[#00d992] text-sm font-bold cursor-pointer hover:bg-[#00d992]/25 transition-all">
+          Detalles
+          <EyeIcon className="size-4 shrink-0" />
         </span>
       </DialogTrigger>
       <DialogContent className="max-w-sm md:max-w-xl">
